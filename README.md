@@ -26,10 +26,11 @@ in [`anki-cards.md`](anki-cards.md).
 
 Pronunciation and spelling cards **auto-route** to a `…::Pronunciation & Spelling`
 subdeck so you can drill them separately from vocabulary.
-- **`enrich`** — retrofit audio + Youglish onto vocab cards already in a deck (idempotent,
-  dry-run by default).
-- **Pre-sync** — pulls the latest from AnkiWeb before writing, so you never create sync
-  conflicts.
+- **`enrich`** — retrofit audio + Youglish onto vocab cards already in a deck (idempotent;
+  applies by default, `--dry-run` to preview).
+- **Auto-sync both ends** — `setup` / `push` / `enrich` pull the latest from AnkiWeb before
+  writing *and* push changes back up afterwards, so you never study a stale collection or
+  create conflicts.
 
 ## Requirements
 
@@ -43,7 +44,7 @@ subdeck so you can drill them separately from vocabulary.
 ```bash
 python3 ankicli.py ping                 # check AnkiConnect is reachable
 python3 ankicli.py setup                # create the deck + 2 styled note types
-python3 ankicli.py push cards/example.json --sync
+python3 ankicli.py push cards/example.json   # add notes (auto pre- + post-sync)
 ```
 
 Then a standalone helper for one-off audio:
@@ -59,11 +60,12 @@ python3 tts.py "piece of cake"          # makes an .m4a, drops it in Anki's medi
 |---|---|
 | `ping` | Check AnkiConnect is reachable |
 | `setup` | Create the deck + two styled note types (idempotent; re-run to restyle) |
-| `push <file> [--sync]` | Add notes from a cards JSON file |
-| `enrich [--audio] [--youglish] [--apply] [--sync]` | Retrofit pronunciation onto existing vocab cards (dry-run unless `--apply`) |
+| `push <file> [--no-sync]` | Add notes from a cards JSON file |
+| `enrich [--audio] [--youglish] [--dry-run] [--no-sync]` | Retrofit pronunciation onto existing vocab cards (applies by default; `--dry-run` to preview) |
 | `sync` | Sync to AnkiWeb |
 
-`setup` / `push` / `enrich` pre-sync from AnkiWeb first; pass `--no-pre-sync` to skip.
+`setup` / `push` / `enrich` **sync on both ends** — a pre-sync pull before writing and a
+post-sync push after. Skip either with `--no-pre-sync` / `--no-sync`.
 
 ## Cards JSON
 

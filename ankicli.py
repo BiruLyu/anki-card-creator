@@ -12,21 +12,22 @@ AnkiConnect add-on (code 2055492159) listening on http://127.0.0.1:8765.
 
 Usage:
     python3 ankicli.py setup                 # create deck + note types (idempotent)
-    python3 ankicli.py push cards.json       # add notes from a cards file
-    python3 ankicli.py push cards.json --sync # add, then sync to AnkiWeb
-    python3 ankicli.py enrich --apply --sync # add audio+Youglish to existing vocab cards
+    python3 ankicli.py push cards.json       # add notes, then sync to AnkiWeb
+    python3 ankicli.py enrich                # add audio+Youglish to existing vocab cards
     python3 ankicli.py sync                  # sync only
     python3 ankicli.py ping                  # check AnkiConnect is reachable
 
 `enrich` retrofits pronunciation onto notes already in a deck: it selects
 vocab/idiom cards (skipping concept/grammar/rule/map cards), extracts each
 card's term, and appends TTS audio and/or a Youglish link — skipping any note
-that already has them. Dry-run unless --apply; --audio / --youglish do just one
-(default: both).
+that already has them. It applies by default; pass --dry-run to preview
+without writing. --audio / --youglish do just one (default: both).
 
-setup/push/enrich first run a **pre-sync** (AnkiConnect `sync`) so they operate
-on the latest collection from AnkiWeb rather than a stale local copy — this
-avoids sync conflicts. Pass --no-pre-sync to skip it (offline / no AnkiWeb).
+setup/push/enrich sync with AnkiWeb on **both ends**: a pre-sync before touching
+the collection (so they operate on the latest from AnkiWeb, not a stale local
+copy) and a post-sync afterwards (so changes are pushed straight up). This keeps
+desktop/phone/AnkiWeb in step and avoids conflicts. Skip either with
+--no-pre-sync / --no-sync (offline / no AnkiWeb).
 
 Cards JSON schema (see cards/example.json):
     {
@@ -343,6 +344,16 @@ def _pre_sync(args):
     print("Pre-sync: pulled latest from AnkiWeb.")
 
 
+def _post_sync(args):
+    """Push local changes up to AnkiWeb after we've modified the collection, so
+    desktop / phone / AnkiWeb stay in step. Opt out with --no-sync (offline, or
+    AnkiWeb not configured)."""
+    if getattr(args, "no_sync", False):
+        return
+    invoke("sync")
+    print("Post-sync: pushed changes to AnkiWeb.")
+
+
 def cmd_ping(_args):
     print(f"AnkiConnect reachable — version {invoke('version')}")
 
@@ -382,6 +393,7 @@ def cmd_setup(args):
                   ["Word", "Clue", "Tips", "Source"],
                   SPELLING_FRONT, SPELLING_BACK, is_cloze=False)
     print("Setup complete.")
+    _post_sync(args)
 
 
 def _deck_for(family, base):
@@ -607,9 +619,7 @@ def cmd_push(args):
         label = note["fields"].get("Front") or note["fields"].get("Text", "")
         print(f"  skipped: {chk.get('error','?')} — {label[:60]}")
 
-    if args.sync:
-        invoke("sync")
-        print("Synced to AnkiWeb.")
+    _post_sync(args)
 
 
 # Which existing notes `enrich` touches: vocab/idiom families with a single
@@ -620,8 +630,8 @@ ENRICH_EXCLUDE = {"concept", "vocabulary-map", "grammar", "pronunciation", "link
 
 def cmd_enrich(args):
     """Add pronunciation audio and/or Youglish links to *existing* vocab/idiom
-    notes in a deck. Dry-run by default; pass --apply to write."""
-    _pre_sync(args)              # sync before reading so the preview isn't stale
+    notes in a deck. Applies by default; pass --dry-run to preview only."""
+    _pre_sync(args)              # sync before reading so the plan isn't stale
     deck = args.deck or DEFAULT_DECK
     both = not args.audio and not args.youglish
     do_audio, do_yg = args.audio or both, args.youglish or both
@@ -654,8 +664,8 @@ def cmd_enrich(args):
     if not plan:
         print("Nothing to do — eligible cards already enriched.")
         return
-    if not args.apply:
-        print("\n(dry run — pass --apply to write)")
+    if args.dry_run:
+        print("\n(dry run — omit --dry-run to write)")
         return
 
     print("\nApplying...")
@@ -669,9 +679,7 @@ def cmd_enrich(args):
             val = (val + " " if val else "") + _youglish_link(y_term)
         invoke("updateNoteFields", note={"id": nid, "fields": {field: val}})
     print(f"Updated {len(plan)} notes.")
-    if args.sync:
-        invoke("sync")
-        print("Synced to AnkiWeb.")
+    _post_sync(args)
 
 
 def cmd_sync(_args):
@@ -689,10 +697,13 @@ def main(argv=None):
     setup_p = sub.add_parser("setup")
     setup_p.add_argument("--no-pre-sync", action="store_true",
                          help="skip the pre-sync pull from AnkiWeb")
+    setup_p.add_argument("--no-sync", action="store_true",
+                         help="skip the post-sync push to AnkiWeb")
     setup_p.set_defaults(func=cmd_setup)
     sp = sub.add_parser("push")
     sp.add_argument("file")
-    sp.add_argument("--sync", action="store_true", help="sync after pushing")
+    sp.add_argument("--no-sync", action="store_true",
+                    help="skip the post-sync push to AnkiWeb (on by default)")
     sp.add_argument("--no-pre-sync", action="store_true",
                     help="skip the pre-sync pull from AnkiWeb")
     sp.add_argument("--voice", help="macOS TTS voice name (default: the system voice)")
@@ -701,8 +712,10 @@ def main(argv=None):
     ep = sub.add_parser("enrich", help="add audio/Youglish to existing vocab cards")
     ep.add_argument("--audio", action="store_true", help="add TTS audio")
     ep.add_argument("--youglish", action="store_true", help="add Youglish links")
-    ep.add_argument("--apply", action="store_true", help="write changes (default: dry run)")
-    ep.add_argument("--sync", action="store_true", help="sync after applying")
+    ep.add_argument("--dry-run", dest="dry_run", action="store_true",
+                    help="preview only; don't write (applies by default)")
+    ep.add_argument("--no-sync", action="store_true",
+                    help="skip the post-sync push to AnkiWeb (on by default)")
     ep.add_argument("--no-pre-sync", action="store_true",
                     help="skip the pre-sync pull from AnkiWeb")
     ep.add_argument("--voice", help="macOS TTS voice name (default: the system voice)")
