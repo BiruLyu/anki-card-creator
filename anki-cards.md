@@ -45,7 +45,7 @@ Use this skill when the user:
 - Warn against mass-importing word lists — overwhelm undermines the system
 - Recommend reviewing daily for new cards and letting Anki schedule the rest
 
-## The Five Card Families
+## The Card Families
 
 Generate cards from multiple families rather than defaulting to word+translation only:
 
@@ -56,6 +56,25 @@ Generate cards from multiple families rather than defaulting to word+translation
 | **Context** | "It's going to _____ tonight." (freeze) | gelare / congelare | Collocations, chunks |
 | **Concept** | "When do you use 'da' vs 'di' in Italian?" | Rule + 2 examples | Grammar, patterns |
 | **Multimedia** | [Audio clip front] | Written form + pronunciation note | Listening, phonetics |
+| **Pronunciation** | the word/phrase (highlighted) | IPA + syllable breakdown + tips + memory hook (+ auto audio & Youglish) | Mastering how a word sounds |
+
+### Pronunciation-breakdown cards
+
+For learning the pronunciation of a specific word or phrase. Front = the target
+(highlight it with `<span class="hl">…</span>` so audio/Youglish auto-derive it);
+Back = a structured breakdown, wrapped in `<div class="pron">…</div>`:
+
+- 📢 **IPA:** `<span class="ipa">/…/</span>` (mark US vs UK if they differ)
+- 🧩 **Syllable by Syllable:** one `<li>` per syllable — describe each sound with a
+  common English word or simple analogy ("rhymes with…", "like the *a* in *cat*").
+- 💡 **Pronunciation Tips:** sounds tricky for **Mandarin speakers** specifically
+  (θ/ð, r vs l, final consonants, v/w); accent differences; silent letters;
+  unusual stress; liaison (esp. French); common mispronunciations.
+- 🔁 **Memory Hook** (optional): a short rhyme, association, or mnemonic for the sound.
+
+With `family: "pronunciation"`, the tool auto-adds TTS audio **and** a Youglish
+link (no need to set `tts`/`youglish`). Style: `.ipa` renders the transcription in
+monospace; `.pron` spaces the sections.
 
 ## Workflow
 

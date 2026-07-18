@@ -36,6 +36,12 @@
       "front": "<b>Vocabulary map</b> — name as many informal ways to say <i>\"go to bed\"</i> as you can.",
       "back": "<span class=\"hl\">hit the sack</span> · <span class=\"hl\">hit the hay</span> · <span class=\"hl\">turn in</span> · <span class=\"hl\">call it a night</span> · <span class=\"hl\">crash</span>",
       "tags": ["english", "vocabulary-map", "example"]
+    },
+    {
+      "family": "pronunciation",
+      "front": "<span class=\"hl\">thoroughly</span>",
+      "back": "<div class=\"pron\"><div>📢 <b>IPA:</b> <span class=\"ipa\">/ˈθɜːr.ə.li/</span> (US)</div><div>🧩 <b>Syllable by Syllable:</b><ul><li><b>thor</b> — soft \"th\" (tongue between the teeth, like <i>think</i>) + a vowel like \"her\"</li><li><b>ough</b> → a quick, unstressed \"uh\" (schwa)</li><li><b>ly</b> — like \"lee\"</li></ul></div><div>💡 <b>Pronunciation Tips:</b><ul><li>Mandarin speakers: the <b>θ</b> (\"th\") has no Mandarin equivalent — put the tongue tip lightly between the teeth and blow; don't substitute \"s\" or \"f\".</li><li>Stress the <b>first</b> syllable: <b>THOR</b>-ough-ly. It's 3 syllables, not 4.</li></ul></div><div>🔁 <b>Memory Hook:</b> \"THOR-oughly\" — picture Thor doing something <i>thoroughly</i>. 🔨</div></div>",
+      "tags": ["english", "pronunciation", "example"]
     }
   ]
 }

@@ -50,6 +50,7 @@ type CSS created by `setup` for the classes available.
 Audio (pronunciation) — add a "tts" key to any note. It is spoken by macOS
 `say`, encoded to .m4a (Anki-playable), stored in the collection, and embedded
 as [sound:file] in a field. Forms:
+    "tts": true                              # auto-derive the term from the card
     "tts": "bow out"                         # -> audio on Back (Cloze: Extra)
     "tts": [{"text": "bow out", "field": "Front"},   # listening card
             {"text": "I bowed out at the last minute.", "field": "Example"}]
@@ -65,6 +66,10 @@ note for a clickable link, a good fallback when the TTS voice is off:
     "youglish": {"term": "bow out", "accent": "uk", "field": "Back"}
 Default accent is US. The link is offline/free and is added even under
 `--no-media`.
+
+A note with "family": "pronunciation" defaults BOTH "tts" and "youglish" to
+true (override by setting either explicitly) — for pronunciation-breakdown
+cards whose Back holds IPA + syllable + tips (styled via the .ipa / .pron CSS).
 """
 from __future__ import annotations
 
@@ -213,6 +218,21 @@ a.yg:hover { background: rgba(37,99,235,.20); }
 .nightMode a.yg, .night_mode a.yg {
   color: #7cb0ff; background: rgba(124,176,255,.12); border-color: rgba(124,176,255,.32);
 }
+
+/* pronunciation breakdown (IPA + syllables + tips + memory hook) */
+.ipa {
+  font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 1.05em;
+  color: #7c3aed;
+  background: rgba(124,58,237,.08);
+  padding: 1px 7px;
+  border-radius: 5px;
+}
+.nightMode .ipa, .night_mode .ipa { color: #c4b5fd; background: rgba(124,58,237,.20); }
+.pron { margin-top: 6px; }
+.pron > div { margin-top: 12px; }
+.pron ul { margin: 5px 0 0; padding-left: 22px; }
+.pron li { margin: 3px 0; }
 """
 
 BASIC_FRONT = (
@@ -406,10 +426,10 @@ def _term(fields, is_cloze, *, youglish):
     return _YG_OVERRIDES.get(t, t) if (youglish and t) else t
 
 
-def _card_term(card):  # push-time helper: card JSON uses lowercase keys
+def _card_term(card, *, youglish=True):  # push-time helper: card JSON uses lowercase keys
     fields = {"Front": card.get("front", ""), "Back": card.get("back", ""),
               "Example": card.get("example", ""), "Text": card.get("text", "")}
-    return _term(fields, "text" in card, youglish=True)
+    return _term(fields, "text" in card, youglish=youglish)
 
 
 def _youglish_link(term, accent="us"):
@@ -421,6 +441,12 @@ def _apply_media(card, note, voice, enable):
     is_cloze = note["modelName"] == CLOZE_MODEL
     default_field = "Extra" if is_cloze else "Back"
 
+    # Pronunciation cards default to including both audio and a Youglish link.
+    if (card.get("family") or "").lower() == "pronunciation":
+        card = {**card}
+        card.setdefault("tts", True)
+        card.setdefault("youglish", True)
+
     # Youglish link (real-speaker pronunciation fallback). "youglish": true ->
     # auto-derive the term; a string -> use it; a dict -> {term?, accent?, field?}.
     yg = card.get("youglish")
@@ -431,9 +457,15 @@ def _apply_media(card, note, voice, enable):
             _embed(note, spec.get("field", default_field),
                    _youglish_link(term, spec.get("accent", "us")), prepend=False)
 
+    # Audio. "tts": true -> auto-derive the spoken term; a string/dict/list ->
+    # speak that text. (Youglish uses first-term; speech joins co-highlighted parts.)
     tts = card.get("tts")
     if tts and enable:
-        specs = [tts] if isinstance(tts, (str, dict)) else tts
+        if tts is True:
+            term = _card_term(card, youglish=False)
+            specs = [{"text": term}] if term else []
+        else:
+            specs = [tts] if isinstance(tts, (str, dict)) else tts
         for spec in specs:
             if isinstance(spec, str):
                 spec = {"text": spec}

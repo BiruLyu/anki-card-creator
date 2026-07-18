@@ -18,6 +18,9 @@ in [`anki-cards.md`](anki-cards.md).
   stored in Anki and embedded as `[sound:…]`.
 - **Youglish links** — one click to hear real speakers say the term on YouTube; a
   fallback when synthetic TTS is off.
+- **Pronunciation-breakdown cards** (`family: "pronunciation"`) — IPA, syllable-by-
+  syllable breakdown, learner-specific tips, and a memory hook, with audio + Youglish
+  auto-attached.
 - **`enrich`** — retrofit audio + Youglish onto vocab cards already in a deck (idempotent,
   dry-run by default).
 - **Pre-sync** — pulls the latest from AnkiWeb before writing, so you never create sync
