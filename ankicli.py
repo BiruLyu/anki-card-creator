@@ -92,6 +92,7 @@ ANKI_URL = "http://127.0.0.1:8765"
 DEFAULT_DECK = "AnkiCardCreator"
 BASIC_MODEL = "AnkiCardCreator Basic"
 CLOZE_MODEL = "AnkiCardCreator Cloze"
+SPELLING_MODEL = "AnkiCardCreator Spelling"
 DEFAULT_VOICE = None   # None -> use the macOS system default voice (say with no -v).
                        # Override per-run with --voice, or per-entry with "voice".
 
@@ -234,6 +235,34 @@ a.yg:hover { background: rgba(37,99,235,.20); }
 .pron > div { margin-top: 12px; }
 .pron ul { margin: 5px 0 0; padding-left: 22px; }
 .pron li { margin: 3px 0; }
+
+/* spelling card: type-in-the-answer box + letter-diff + tips callout */
+#typeans {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 20px;
+  padding: 8px 10px;
+  margin-top: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2933;
+}
+.nightMode #typeans, .night_mode #typeans {
+  background: #23262e; color: #e4e7eb; border-color: #333842;
+}
+.typeGood   { color: #15803d; background: #dcfce7; }
+.typeBad    { color: #b91c1c; background: #fee2e2; text-decoration: line-through; }
+.typeMissed { color: #92400e; background: #fef3c7; }
+.nightMode .typeGood,   .night_mode .typeGood   { color: #86efac; background: #14532d; }
+.nightMode .typeBad,    .night_mode .typeBad    { color: #fca5a5; background: #4c1d1d; }
+.nightMode .typeMissed, .night_mode .typeMissed { color: #fde68a; background: #4a3610; }
+.spell {
+  margin-top: 14px; padding: 10px 14px;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 17px;
+}
+.spell::before { content: "✍️ "; }
+.nightMode .spell, .night_mode .spell { background: #1c1f26; border-color: #2c3038; }
 """
 
 BASIC_FRONT = (
@@ -253,6 +282,21 @@ CLOZE_BACK = (
     "{{#Extra}}<div class=\"a\">{{Extra}}</div>{{/Extra}}\n"
     "{{#Example}}<div class=\"example\">{{Example}}</div>{{/Example}}\n"
     "{{#Note}}<div class=\"note\">{{Note}}</div>{{/Note}}\n"
+    "{{#Source}}<div class=\"source\">{{Source}}</div>{{/Source}}"
+)
+# Spelling: hear the word (+ a meaning clue), type the spelling; Anki grades it
+# letter-by-letter via {{type:Word}}. Audio is embedded in Clue (front).
+SPELLING_FRONT = (
+    "<div class=\"tag\">Spelling</div>\n"
+    "<div class=\"q\">✍️ Spell the word you hear</div>\n"
+    "{{#Clue}}<div class=\"example\">{{Clue}}</div>{{/Clue}}\n"
+    "{{type:Word}}"
+)
+SPELLING_BACK = (
+    "<div class=\"tag\">Spelling</div>\n"
+    "<div class=\"q\">{{Word}}</div>\n"
+    "{{type:Word}}\n"
+    "{{#Tips}}<div class=\"spell\">{{Tips}}</div>{{/Tips}}\n"
     "{{#Source}}<div class=\"source\">{{Source}}</div>{{/Source}}"
 )
 
@@ -319,6 +363,9 @@ def cmd_setup(args):
     _ensure_model(CLOZE_MODEL,
                   ["Text", "Extra", "Example", "Note", "Source"],
                   CLOZE_FRONT, CLOZE_BACK, is_cloze=True)
+    _ensure_model(SPELLING_MODEL,
+                  ["Word", "Clue", "Tips", "Source"],
+                  SPELLING_FRONT, SPELLING_BACK, is_cloze=False)
     print("Setup complete.")
 
 
@@ -328,6 +375,14 @@ def _build_note(card, deck):
     common = {"deckName": deck, "tags": tags,
               "options": {"allowDuplicate": False,
                           "duplicateScope": "deck"}}
+    if family == "spelling":
+        fields = {
+            "Word": card.get("word", ""),
+            "Clue": card.get("clue", ""),
+            "Tips": card.get("tips", ""),
+            "Source": card.get("source", ""),
+        }
+        return {**common, "modelName": SPELLING_MODEL, "fields": fields}
     if family == "context" or "text" in card:
         fields = {
             "Text": card.get("text", ""),
@@ -440,14 +495,22 @@ def _youglish_link(term=None, accent="us", url=None):
 
 
 def _apply_media(card, note, voice, enable):
-    is_cloze = note["modelName"] == CLOZE_MODEL
-    default_field = "Extra" if is_cloze else "Back"
+    model = note["modelName"]
+    is_cloze = model == CLOZE_MODEL
+    default_field = ("Clue" if model == SPELLING_MODEL
+                     else "Extra" if is_cloze else "Back")
 
+    family = (card.get("family") or "").lower()
     # Pronunciation cards default to including both audio and a Youglish link.
-    if (card.get("family") or "").lower() == "pronunciation":
+    if family == "pronunciation":
         card = {**card}
         card.setdefault("tts", True)
         card.setdefault("youglish", True)
+    # Spelling cards play the word on the front (Clue) so you can spell it — no
+    # Youglish (that's for the matching pronunciation card).
+    elif family == "spelling":
+        card = {**card}
+        card.setdefault("tts", card.get("word") or True)
 
     # Youglish link (real-speaker pronunciation fallback). "youglish": true ->
     # auto-derive the term; a string -> use it; a dict -> {term?, accent?, field?}.

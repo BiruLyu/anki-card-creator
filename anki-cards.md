@@ -57,6 +57,7 @@ Generate cards from multiple families rather than defaulting to word+translation
 | **Concept** | "When do you use 'da' vs 'di' in Italian?" | Rule + 2 examples | Grammar, patterns |
 | **Multimedia** | [Audio clip front] | Written form + pronunciation note | Listening, phonetics |
 | **Pronunciation** | the word/phrase (highlighted) | IPA + syllable breakdown + tips + memory hook (+ auto audio & Youglish) | Mastering how a word sounds |
+| **Spelling** | 🔊 audio + meaning clue → *type it* | correct spelling (letter-diff) + tips | Testing spelling *production* |
 
 ### Pronunciation-breakdown cards
 
@@ -79,6 +80,22 @@ With `family: "pronunciation"`, the tool auto-adds TTS audio **and** a Youglish
 link (no need to set `tts`/`youglish`). Pass `"youglish": {"url": "…getbyid…"}` to
 use a specific clip instead of the auto search link. Style: `.ipa` renders the
 transcription in monospace; `.pron` spaces the sections.
+
+### Spelling-check cards
+
+To test whether you can *produce* a spelling (retrieval, not recognition). Uses
+Anki's native **type-in-the-answer**: the front plays the word + a meaning clue
+(word hidden), you type it, and Anki grades it letter-by-letter.
+
+```json
+{ "family": "spelling", "word": "Prosciutto",
+  "clue": "an Italian dry-cured ham",
+  "tips": "Silent c in sci (=sh) + double t." }
+```
+
+`word` is plain text (Anki compares against it) and is auto-spoken on the front.
+Only card genuinely tricky spellings. Pairs naturally with a pronunciation card
+for the same word.
 
 ## Workflow
 

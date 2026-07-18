@@ -12,8 +12,8 @@ in [`anki-cards.md`](anki-cards.md).
 
 ## Features
 
-- **Two styled note types** (Basic + native Cloze), dark-mode aware, with highlight and
-  `<code>` styling for the target term and grammar patterns.
+- **Three styled note types** (Basic, native Cloze, and a **Spelling** type that uses
+  Anki's type-in-the-answer to grade spelling letter-by-letter), dark-mode aware.
 - **Pronunciation audio** — auto-generated with the macOS system voice (`say` → `.m4a`),
   stored in Anki and embedded as `[sound:…]`.
 - **Youglish links** — one click to hear real speakers say the term on YouTube; a
@@ -21,6 +21,8 @@ in [`anki-cards.md`](anki-cards.md).
 - **Pronunciation-breakdown cards** (`family: "pronunciation"`) — IPA, syllable-by-
   syllable breakdown, learner-specific tips, and a memory hook, with audio + Youglish
   auto-attached.
+- **Spelling-check cards** (`family: "spelling"`) — hear the word + a meaning clue, type
+  the spelling, and Anki grades it letter-by-letter.
 - **`enrich`** — retrofit audio + Youglish onto vocab cards already in a deck (idempotent,
   dry-run by default).
 - **Pre-sync** — pulls the latest from AnkiWeb before writing, so you never create sync
