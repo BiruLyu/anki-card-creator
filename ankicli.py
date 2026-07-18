@@ -31,9 +31,10 @@ desktop/phone/AnkiWeb in step and avoids conflicts. Skip either with
 
 Cards JSON schema (see cards/example.json):
     {
-      "deck": "AnkiCardCreator",              # optional; --deck flag overrides.
-                                              # pronunciation/spelling families
-                                              # auto-route to "<deck>::Pronunciation & Spelling".
+      "deck": "AnkiCardCreator",              # optional; --deck flag overrides. Cards
+                                              # auto-route to subdecks: pronunciation/spelling
+                                              # to "<deck>::Pronunciation & Spelling", everything
+                                              # else to "<deck>::Main" (base stays an empty container).
       "notes": [
         { "family": "recall|recognition|concept|multimedia",
           "front": "...", "back": "...",
@@ -97,6 +98,7 @@ BASIC_MODEL = "AnkiCardCreator Basic"
 CLOZE_MODEL = "AnkiCardCreator Cloze"
 SPELLING_MODEL = "AnkiCardCreator Spelling"
 PRON_SPELL_SUBDECK = "Pronunciation & Spelling"  # pronunciation/spelling families route here
+MAIN_SUBDECK = "Main"  # every other family routes here (so it's drilled with its own new/day limit)
 DEFAULT_VOICE = None   # None -> use the macOS system default voice (say with no -v).
                        # Override per-run with --voice, or per-entry with "voice".
 
@@ -381,8 +383,9 @@ def cmd_setup(args):
     _pre_sync(args)
     deck = args.deck or DEFAULT_DECK
     invoke("createDeck", deck=deck)
+    invoke("createDeck", deck=f"{deck}::{MAIN_SUBDECK}")
     invoke("createDeck", deck=f"{deck}::{PRON_SPELL_SUBDECK}")
-    print(f"  deck ready: {deck}  (+ ::{PRON_SPELL_SUBDECK})")
+    print(f"  deck ready: {deck}  (+ ::{MAIN_SUBDECK}, ::{PRON_SPELL_SUBDECK})")
     _ensure_model(BASIC_MODEL,
                   ["Front", "Back", "Example", "Note", "Source", "Type"],
                   BASIC_FRONT, BASIC_BACK, is_cloze=False)
@@ -397,10 +400,12 @@ def cmd_setup(args):
 
 
 def _deck_for(family, base):
-    """Pronunciation & spelling cards route into a dedicated subdeck."""
+    """Route cards into subdecks so each is studied at its own pace: pronunciation
+    & spelling into one subdeck, everything else into `<base>::Main`. The base deck
+    itself stays an empty container."""
     if family in ("pronunciation", "spelling"):
         return f"{base}::{PRON_SPELL_SUBDECK}"
-    return base
+    return f"{base}::{MAIN_SUBDECK}"
 
 
 def _build_note(card, deck):

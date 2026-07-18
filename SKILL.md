@@ -123,10 +123,12 @@ spell it — no Youglish (that belongs on the pronunciation card). `word` must b
 rule above) — so a tricky word yields *two* cards: pronunciation + spelling. Skip it
 for regular, phonetic words.
 
-> **Deck routing.** `pronunciation` and `spelling` cards **auto-route** to a
-> `<deck>::Pronunciation & Spelling` subdeck (so they're drilled separately from
-> vocabulary). Connected-speech / linking-rule cards are a pronunciation *concept*
-> (not the pronunciation family), so to file them in the same subdeck set a file-level
+> **Deck routing.** Cards auto-route into subdecks so each is studied at its own
+> pace, leaving the base deck an empty container: `pronunciation` and `spelling`
+> cards go to `<deck>::Pronunciation & Spelling`, and **every other family** goes to
+> `<deck>::Main` (give `::Main` its own new-cards/day limit in Anki's deck options).
+> Connected-speech / linking-rule cards are a pronunciation *concept* (not the
+> pronunciation family), so to file them with the pronunciation set add a file-level
 > `"deck": "AnkiCardCreator::Pronunciation & Spelling"` (or push `--deck …`).
 
 ---
