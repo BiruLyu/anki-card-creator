@@ -23,6 +23,9 @@ in [`anki-cards.md`](anki-cards.md).
   auto-attached.
 - **Spelling-check cards** (`family: "spelling"`) — hear the word + a meaning clue, type
   the spelling, and Anki grades it letter-by-letter.
+
+Pronunciation and spelling cards **auto-route** to a `…::Pronunciation & Spelling`
+subdeck so you can drill them separately from vocabulary.
 - **`enrich`** — retrofit audio + Youglish onto vocab cards already in a deck (idempotent,
   dry-run by default).
 - **Pre-sync** — pulls the latest from AnkiWeb before writing, so you never create sync

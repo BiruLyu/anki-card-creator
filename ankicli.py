@@ -30,7 +30,9 @@ avoids sync conflicts. Pass --no-pre-sync to skip it (offline / no AnkiWeb).
 
 Cards JSON schema (see cards/example.json):
     {
-      "deck": "AnkiCardCreator",              # optional; --deck flag overrides
+      "deck": "AnkiCardCreator",              # optional; --deck flag overrides.
+                                              # pronunciation/spelling families
+                                              # auto-route to "<deck>::Pronunciation & Spelling".
       "notes": [
         { "family": "recall|recognition|concept|multimedia",
           "front": "...", "back": "...",
@@ -93,6 +95,7 @@ DEFAULT_DECK = "AnkiCardCreator"
 BASIC_MODEL = "AnkiCardCreator Basic"
 CLOZE_MODEL = "AnkiCardCreator Cloze"
 SPELLING_MODEL = "AnkiCardCreator Spelling"
+PRON_SPELL_SUBDECK = "Pronunciation & Spelling"  # pronunciation/spelling families route here
 DEFAULT_VOICE = None   # None -> use the macOS system default voice (say with no -v).
                        # Override per-run with --voice, or per-entry with "voice".
 
@@ -356,7 +359,8 @@ def cmd_setup(args):
     _pre_sync(args)
     deck = args.deck or DEFAULT_DECK
     invoke("createDeck", deck=deck)
-    print(f"  deck ready: {deck}")
+    invoke("createDeck", deck=f"{deck}::{PRON_SPELL_SUBDECK}")
+    print(f"  deck ready: {deck}  (+ ::{PRON_SPELL_SUBDECK})")
     _ensure_model(BASIC_MODEL,
                   ["Front", "Back", "Example", "Note", "Source", "Type"],
                   BASIC_FRONT, BASIC_BACK, is_cloze=False)
@@ -369,10 +373,17 @@ def cmd_setup(args):
     print("Setup complete.")
 
 
+def _deck_for(family, base):
+    """Pronunciation & spelling cards route into a dedicated subdeck."""
+    if family in ("pronunciation", "spelling"):
+        return f"{base}::{PRON_SPELL_SUBDECK}"
+    return base
+
+
 def _build_note(card, deck):
     family = (card.get("family") or "recall").lower()
     tags = card.get("tags") or []
-    common = {"deckName": deck, "tags": tags,
+    common = {"deckName": _deck_for(family, deck), "tags": tags,
               "options": {"allowDuplicate": False,
                           "duplicateScope": "deck"}}
     if family == "spelling":
@@ -561,6 +572,8 @@ def cmd_push(args):
     enable_media = not args.no_media
     cards = data["notes"]
     notes = [_build_note(c, deck) for c in cards]
+    for d in sorted({n["deckName"] for n in notes}):  # ensure target decks/subdecks exist
+        invoke("createDeck", deck=d)
 
     # canAddNotesWithErrorDetail flags duplicates / invalid notes up front.
     # Dedup keys off the first field (unaffected by audio), so check BEFORE
@@ -576,7 +589,8 @@ def cmd_push(args):
     added_ids = invoke("addNotes", notes=[n for _, n, _ in addable]) if addable else []
     added = sum(1 for i in added_ids if i)
 
-    print(f"Deck: {deck}")
+    decks = sorted({n["deckName"] for n in notes})
+    print(f"Deck(s): {', '.join(decks)}")
     print(f"Added: {added}/{len(notes)} notes")
     for _, note, chk in skipped:
         label = note["fields"].get("Front") or note["fields"].get("Text", "")

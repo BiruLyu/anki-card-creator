@@ -95,6 +95,12 @@ Anki's native **type-in-the-answer**: the front plays the word + a meaning clue
 
 `word` is plain text (Anki compares against it) and is auto-spoken on the front.
 
+**Deck routing:** pronunciation and spelling cards are automatically placed in a
+`<deck>::Pronunciation & Spelling` subdeck (kept separate from vocabulary). Connected
+-speech / linking-rule cards are a pronunciation *concept* (not the pronunciation
+family), so route them there explicitly with a file-level `"deck"` when you want them
+alongside — e.g. `"deck": "AnkiCardCreator::Pronunciation & Spelling"`.
+
 **Default pairing:** whenever you make a pronunciation card for a **tricky-to-spell**
 word, also emit a companion spelling card by default (a tricky word → two cards).
 A word is tricky if it has silent letters, doubled letters, non-phonetic/foreign
