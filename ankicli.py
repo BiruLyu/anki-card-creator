@@ -234,10 +234,21 @@ a.yg:hover { background: rgba(37,99,235,.20); }
   border-radius: 5px;
 }
 .nightMode .ipa, .night_mode .ipa { color: #c4b5fd; background: rgba(124,58,237,.20); }
-.pron { margin-top: 6px; }
-.pron > div { margin-top: 12px; }
-.pron ul { margin: 5px 0 0; padding-left: 22px; }
-.pron li { margin: 3px 0; }
+/* Compact, scannable reference block — smaller body text, demoted section
+   labels, and thin separators so the breakdown chunks instead of looming as
+   one wall of large text. */
+.pron { margin-top: 8px; font-size: 15px; line-height: 1.4; }
+.pron > div { margin-top: 9px; padding-top: 9px; border-top: 1px solid #eef2f7; }
+.pron > div:first-child { margin-top: 4px; padding-top: 0; border-top: none; }
+.nightMode .pron > div, .night_mode .pron > div { border-color: #262a32; }
+.pron > div > b {                 /* section label: IPA / Syllables / Tips / Spelling / Hook */
+  font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: #64748b;
+}
+.nightMode .pron > div > b, .night_mode .pron > div > b { color: #94a3b8; }
+.pron ul { margin: 3px 0 0; padding-left: 20px; }
+.pron li { margin: 2px 0; }
+.pron .ipa { font-size: 1.0em; }  /* keep IPA in step with the smaller block */
 
 /* spelling card: type-in-the-answer box + letter-diff + tips callout */
 #typeans {
