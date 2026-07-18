@@ -1,0 +1,41 @@
+{
+  "deck": "AnkiCardCreator",
+  "notes": [
+    {
+      "family": "recall",
+      "front": "Idiom: something <b>very easy</b> to do.",
+      "back": "a <span class=\"hl\">piece of cake</span>",
+      "example": "The exam was a <span class=\"hl\">piece of cake</span> — I finished in ten minutes.",
+      "note": "Informal. Similar: <code>a breeze</code>, <code>a walk in the park</code>.",
+      "tags": ["english", "idiom", "example"],
+      "tts": true,
+      "youglish": true
+    },
+    {
+      "family": "context",
+      "text": "Don't worry about the install — it's a {{c1::piece of cake}}.",
+      "extra": "<b>a piece of cake</b> = very easy",
+      "tags": ["english", "idiom", "example"]
+    },
+    {
+      "family": "recognition",
+      "front": "to <span class=\"hl\">hit the sack</span>",
+      "back": "to go to bed / go to sleep (informal)",
+      "example": "It's late — I'm going to <span class=\"hl\">hit the sack</span>.",
+      "tags": ["english", "idiom", "example"],
+      "tts": true
+    },
+    {
+      "family": "concept",
+      "front": "When do you use <code>fewer</code> vs <code>less</code>?",
+      "back": "• <span class=\"hl\">fewer</span> + <b>countable</b> nouns: <i>fewer cards</i><br>• <span class=\"hl2\">less</span> + <b>uncountable</b> nouns: <i>less time</i>",
+      "tags": ["english", "grammar", "example"]
+    },
+    {
+      "family": "recall",
+      "front": "<b>Vocabulary map</b> — name as many informal ways to say <i>\"go to bed\"</i> as you can.",
+      "back": "<span class=\"hl\">hit the sack</span> · <span class=\"hl\">hit the hay</span> · <span class=\"hl\">turn in</span> · <span class=\"hl\">call it a night</span> · <span class=\"hl\">crash</span>",
+      "tags": ["english", "vocabulary-map", "example"]
+    }
+  ]
+}
