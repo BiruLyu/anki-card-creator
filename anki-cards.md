@@ -94,8 +94,13 @@ Anki's native **type-in-the-answer**: the front plays the word + a meaning clue
 ```
 
 `word` is plain text (Anki compares against it) and is auto-spoken on the front.
-Only card genuinely tricky spellings. Pairs naturally with a pronunciation card
-for the same word.
+
+**Default pairing:** whenever you make a pronunciation card for a **tricky-to-spell**
+word, also emit a companion spelling card by default (a tricky word → two cards).
+A word is tricky if it has silent letters, doubled letters, non-phonetic/foreign
+patterns (`ph`, `sci`→"sh", `gi`→"j", `ou`→"oo"), apostrophes/hyphens/odd
+capitalization, or a commonly transposed form (`chipotle`, `entrepreneur`). Skip it
+for regular, phonetic words written the way they sound (`popsicle`, `croutons`).
 
 ## Workflow
 
