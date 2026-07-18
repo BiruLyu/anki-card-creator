@@ -211,11 +211,12 @@ The CLI is dependency-free (stdlib) and lives at
 `~/.claude/skills/anki-cards/scripts/ankicli.py`. **Anki must be running with
 the AnkiConnect add-on** (add-on code `2055492159`) on `http://127.0.0.1:8765`.
 
-> **Canonical source:** `scripts/ankicli.py` and `scripts/tts.py` are symlinks to
-> `~/Tasks/anki-card-creator/` — a clone of the public repo
-> [github.com/BiruLyu/anki-card-creator](https://github.com/BiruLyu/anki-card-creator).
-> Edit the tooling *there* (commit + push); this skill reflects changes
-> automatically. Don't edit the symlinked files expecting a private copy.
+> **Canonical source:** this skill's `SKILL.md`, `reference/`, and `scripts/*.py`
+> are symlinks into a local clone of the public repo
+> [github.com/BiruLyu/anki-card-creator](https://github.com/BiruLyu/anki-card-creator)
+> (wherever you cloned it; default `~/Tasks/anki-card-creator/`). Edit the tooling
+> *and this doc* there (commit + push); the skill reflects changes automatically.
+> Don't edit the symlinked files expecting a private copy.
 
 ```bash
 CLI=~/.claude/skills/anki-cards/scripts/ankicli.py
