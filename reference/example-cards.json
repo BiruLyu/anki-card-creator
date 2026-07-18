@@ -1,0 +1,183 @@
+{
+  "deck": "AnkiCardCreator",
+  "notes": [
+    {
+      "family": "recall",
+      "front": "Informal adjective: describes something <b>suspicious, dishonest, or not quite right</b> — <i>not</i> the smell of fish.",
+      "back": "<span class=\"hl\">fishy</span>",
+      "example": "The hotel keeps quoting me a different price — something's <span class=\"hl\">fishy</span>.",
+      "note": "Idiomatic, not literal. Common frames: <code>something's fishy</code>, <code>sounds fishy to me</code>, <code>a bit fishy</code>.",
+      "source": "AEE #2653 — When Fishy and Cheesy Aren't About Food",
+      "tags": ["english", "aee::2653", "idiom", "adjective", "topic::suspicion"]
+    },
+    {
+      "family": "context",
+      "text": "He said we could get rich overnight. That's already a red flag — sounds pretty {{c1::fishy}} to me.",
+      "extra": "<b>fishy</b> = suspicious / dishonest / off",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "collocation", "topic::suspicion"]
+    },
+    {
+      "family": "recognition",
+      "front": "fishy <span style=\"color:#94a3b8\">(used idiomatically)</span>",
+      "back": "suspicious, dishonest, or not quite right",
+      "example": "\"He suddenly changed his story.\" — \"Yeah, it's a little <span class=\"hl\">fishy</span>.\"",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "adjective"]
+    },
+    {
+      "family": "recall",
+      "front": "Informal adjective: <b>trying too hard</b> to be funny or romantic; cliché, corny, a bit embarrassing.",
+      "back": "<span class=\"hl\">cheesy</span>",
+      "example": "Did you hear his pick-up line? \"Did it hurt when you fell from heaven?\" So <span class=\"hl\">cheesy</span>.",
+      "note": "Lighthearted, not usually offensive — but calling someone's heartfelt gesture <i>cheesy</i> can sting. Used of jokes, movies, pick-up lines, decorations, slogans.",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "idiom", "adjective", "topic::humor"]
+    },
+    {
+      "family": "context",
+      "text": "It was fun, but the decorations were a bit {{c1::cheesy}} — bright dollar-store stuff, not classy.",
+      "extra": "<b>cheesy</b> = cliché / corny / trying too hard",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "collocation", "topic::humor"]
+    },
+    {
+      "family": "concept",
+      "front": "What's the difference between calling something <span class=\"hl\">fishy</span> vs <span class=\"hl2\">cheesy</span>?",
+      "back": "<span class=\"hl\">fishy</span> → <b>suspicious / dishonest</b> — you don't trust it.<br><span class=\"hl2\">cheesy</span> → <b>corny / cliché</b> — trying too hard to be funny or romantic.",
+      "example": "\"It's both fishy <b>and</b> cheesy — worst combo ever.\" (a scammy pitch that's also full of dramatic clichés)",
+      "note": "Both are food words used idiomatically, and both are casual/playful — great for connection.",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "concept", "topic::confusable"]
+    },
+    {
+      "family": "recall",
+      "front": "Adjective: <b>extremely surprised, shocked, astonished</b> (often speechless).",
+      "back": "<span class=\"hl\">flabbergasted</span>",
+      "example": "My husband was <span class=\"hl\">flabbergasted</span> when he saw the henna sleeve.",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "adjective", "topic::emotion"]
+    },
+    {
+      "family": "context",
+      "text": "It's not really something that would be on his {{c1::radar}} — he'd never even thought about it.",
+      "extra": "<code>on someone's radar</code> = something they're aware of / paying attention to",
+      "note": "Opposite: <code>fly under the radar</code> = go unnoticed.",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "idiom", "topic::attention"]
+    },
+    {
+      "family": "context",
+      "text": "The average parent has a few cheesy jokes up their {{c1::sleeve}}, ready for the right moment.",
+      "extra": "<code>have something up your sleeve</code> = keep it ready / in reserve (often secretly)",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "idiom", "topic::readiness"]
+    },
+    {
+      "family": "recall",
+      "front": "Idiom: <b>excessive, exaggerated, too much</b> — done to a dramatic degree.",
+      "back": "<span class=\"hl\">over the top</span>",
+      "example": "The way he presented it was sort of <span class=\"hl\">over the top</span> — all those dramatic lines.",
+      "note": "Often abbreviated <code>OTT</code> in writing.",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "idiom", "topic::exaggeration"]
+    },
+    {
+      "family": "context",
+      "text": "Anytime someone says you'll \"get rich overnight,\" that's a red {{c1::flag}}.",
+      "extra": "<code>a red flag</code> = a warning sign that something is wrong",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "idiom", "topic::warning"]
+    },
+    {
+      "family": "recall",
+      "front": "Idiom: to <b>consider</b> feedback or a suggestion (politely) before deciding — you'll think it over, then do as you choose.",
+      "back": "to <span class=\"hl\">take something under advisement</span>",
+      "example": "I'll take all your feedback <span class=\"hl\">under advisement</span> — and then do whatever I want.",
+      "note": "Slightly formal / tongue-in-cheek. Fixed phrase — note the preposition <code>under</code>.",
+      "source": "AEE #2653",
+      "tags": ["english", "aee::2653", "idiom", "register::formal"]
+    },
+
+    {
+      "family": "recall",
+      "front": "Noun (informal): <b>someone who betrays your trust by telling on you</b>, often to an authority figure.",
+      "back": "a <span class=\"hl\">rat</span>",
+      "example": "\"I heard your brother told on you.\" — \"Yeah, he's such a <span class=\"hl\">rat</span>.\"",
+      "note": "Insulting. The whole family of expressions in this episode comes from this word.",
+      "source": "AEE #2632 — Don't Be a Rat",
+      "tags": ["english", "aee::2632", "idiom", "noun", "topic::betrayal"]
+    },
+    {
+      "family": "concept",
+      "front": "Both mean \"to tell an authority about someone's wrongdoing.\" What's the difference between<br><code>rat someone out</code> and <code>rat on someone</code>?",
+      "back": "<b>No meaning difference</b> — only the pattern differs:<br>• <code>rat someone <span class=\"hl\">out</span></code> — object goes in the middle: <i>rat <u>him</u> out</i><br>• <code>rat <span class=\"hl\">on</span> someone</code> — object follows: <i>rat on <u>him</u></i>",
+      "example": "\"She promised not to say anything, but then <span class=\"hl\">ratted me out</span>.\" / \"I wasn't planning to <span class=\"hl\">rat on him</span>, but the boss asked me directly.\"",
+      "note": "Watch the word order — this is the trap for learners.",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "concept", "phrasal-verb", "topic::betrayal"]
+    },
+    {
+      "family": "context",
+      "text": "Everyone agreed to stay quiet about the candy, but someone {{c1::ratted on}} us — the teacher knows.",
+      "extra": "<code>rat on someone</code> = tell on them to an authority",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "phrasal-verb", "topic::betrayal"]
+    },
+    {
+      "family": "context",
+      "text": "I know, but who would {{c1::rat us out}}? We're still getting all our work done.",
+      "extra": "<code>rat someone out</code> = inform on them (object in the middle)",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "phrasal-verb", "topic::betrayal"]
+    },
+    {
+      "family": "recall",
+      "front": "Idiom: to <b>suspect that someone is being dishonest</b> or that something bad is secretly going on.",
+      "back": "to <span class=\"hl\">smell a rat</span>",
+      "example": "Only a few people knew the plan, and now everyone does. I <span class=\"hl\">smell a rat</span>.",
+      "note": "Related: <code>have a rat</code> = there's a traitor/leaker in the group.",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "idiom", "topic::suspicion"]
+    },
+    {
+      "family": "context",
+      "text": "Someone must be leaking our strategies to our competitors — I think we {{c1::have a rat}}.",
+      "extra": "<code>have a rat</code> = there's a traitor/informant among us",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "idiom", "topic::betrayal"]
+    },
+    {
+      "family": "recall",
+      "front": "Childish noun + verb for someone who tells on others (playground register).",
+      "back": "a <span class=\"hl\">tattletale</span> · to <span class=\"hl\">tattle on</span> someone",
+      "example": "My daughter hits my son, then he's like \"she hit me, she hit me!\" — such a <span class=\"hl\">tattletale</span>.",
+      "note": "Register: <b>juvenile</b>. Don't use about a coworker — say <i>rat</i> instead in adult/professional contexts.",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "vocabulary", "register::childish", "topic::betrayal"]
+    },
+    {
+      "family": "context",
+      "text": "Scott's always giving us the {{c1::side-eye}} when we walk in late.",
+      "extra": "<code>give someone the side-eye</code> = a sideways look of suspicion or disapproval",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "idiom", "topic::body-language"]
+    },
+    {
+      "family": "recall",
+      "front": "Idiom: the <b>decisive factor</b> between success and failure — it can determine everything.",
+      "back": "<span class=\"hl\">make or break</span>",
+      "example": "For a small business, the right hire can be <span class=\"hl\">make or break</span>.",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "idiom", "topic::business"]
+    },
+    {
+      "family": "recall",
+      "front": "<b>Vocabulary map</b> — name as many English expressions as you can for <i>betraying trust / telling on someone</i>.",
+      "back": "a <span class=\"hl\">rat</span> ↔ <span class=\"hl\">rat someone out</span> ↔ <span class=\"hl\">rat on someone</span> ↔ <span class=\"hl\">tell on someone</span> ↔ <span class=\"hl2\">tattle / tattletale</span> (childish) ↔ <span class=\"hl\">snitch</span> ↔ <span class=\"hl\">smell a rat</span> / <span class=\"hl\">have a rat</span> (suspect a traitor)",
+      "note": "Register gradient: <i>tattletale</i> (kids) → <i>rat / snitch</i> (casual adult) → <i>inform on someone</i> (formal).",
+      "source": "AEE #2632",
+      "tags": ["english", "aee::2632", "vocabulary-map", "topic::betrayal"]
+    }
+  ]
+}
