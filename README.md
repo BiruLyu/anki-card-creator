@@ -8,7 +8,7 @@ JSON and pushed into Anki over [AnkiConnect](https://ankiweb.net/shared/info/205
 The guiding idea: **never generate word→translation cards only** (the single biggest
 flashcard failure mode). Mix *card families* — recall, recognition, context/cloze,
 concept, vocabulary-map — and keep every item in real context. The full methodology is
-in [`anki-cards.md`](anki-cards.md).
+in [`SKILL.md`](SKILL.md).
 
 ## Features
 

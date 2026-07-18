@@ -3,7 +3,7 @@
 
 Division of labor:
   * Claude reads source material (transcripts, docs, user input) and writes a
-    cards JSON file following the anki-cards.md methodology.
+    cards JSON file following the SKILL.md methodology.
   * This CLI mechanically creates the deck + styled note types, adds the notes,
     and (optionally) syncs to AnkiWeb.
 
