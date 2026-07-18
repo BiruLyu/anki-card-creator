@@ -70,11 +70,15 @@ Back = a structured breakdown, wrapped in `<div class="pron">…</div>`:
 - 💡 **Pronunciation Tips:** sounds tricky for **Mandarin speakers** specifically
   (θ/ð, r vs l, final consonants, v/w); accent differences; silent letters;
   unusual stress; liaison (esp. French); common mispronunciations.
+- ✍️ **Spelling Tips** (when spelling is tricky): how to remember the written form —
+  silent/doubled letters, foreign patterns (`gi`→"j", `sci`→"sh"), commonly
+  transposed letters, or breaking the word into familiar chunks.
 - 🔁 **Memory Hook** (optional): a short rhyme, association, or mnemonic for the sound.
 
 With `family: "pronunciation"`, the tool auto-adds TTS audio **and** a Youglish
-link (no need to set `tts`/`youglish`). Style: `.ipa` renders the transcription in
-monospace; `.pron` spaces the sections.
+link (no need to set `tts`/`youglish`). Pass `"youglish": {"url": "…getbyid…"}` to
+use a specific clip instead of the auto search link. Style: `.ipa` renders the
+transcription in monospace; `.pron` spaces the sections.
 
 ## Workflow
 

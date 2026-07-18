@@ -64,6 +64,7 @@ note for a clickable link, a good fallback when the TTS voice is off:
     "youglish": true                 # auto-derive the term from the card
     "youglish": "bow out"            # use an explicit term
     "youglish": {"term": "bow out", "accent": "uk", "field": "Back"}
+    "youglish": {"url": "https://youglish.com/getbyid/…"}   # a specific clip
 Default accent is US. The link is offline/free and is added even under
 `--no-media`.
 
@@ -432,8 +433,9 @@ def _card_term(card, *, youglish=True):  # push-time helper: card JSON uses lowe
     return _term(fields, "text" in card, youglish=youglish)
 
 
-def _youglish_link(term, accent="us"):
-    url = f"https://youglish.com/pronounce/{urllib.parse.quote(term)}/english/{accent}"
+def _youglish_link(term=None, accent="us", url=None):
+    if not url:  # default: a search link; or pass an explicit clip URL (getbyid/…)
+        url = f"https://youglish.com/pronounce/{urllib.parse.quote(term)}/english/{accent}"
     return f'<a class="yg" href="{url}">🔎 Youglish</a>'
 
 
@@ -453,9 +455,10 @@ def _apply_media(card, note, voice, enable):
     if yg:
         spec = yg if isinstance(yg, dict) else {}
         term = spec.get("term") or (yg if isinstance(yg, str) else _card_term(card))
-        if term:
+        if spec.get("url") or term:
             _embed(note, spec.get("field", default_field),
-                   _youglish_link(term, spec.get("accent", "us")), prepend=False)
+                   _youglish_link(term, spec.get("accent", "us"), spec.get("url")),
+                   prepend=False)
 
     # Audio. "tts": true -> auto-derive the spoken term; a string/dict/list ->
     # speak that text. (Youglish uses first-term; speech joins co-highlighted parts.)
