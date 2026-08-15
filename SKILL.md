@@ -171,6 +171,34 @@ Mapping: `family: "context"` (or any note with a `text` field) → **Cloze** not
 type; every other family → **Basic**. `deck` is optional (default
 `AnkiCardCreator`; override per-file or with `--deck`).
 
+**The front must be answerable on its own.** A cloze card's front is the
+`text` field with the blank hidden — nothing else. Before writing one, cover
+the target in your head and check: does the *rest of the sentence* actually
+imply that word/phrase (grammar, logic, a collocation you'd complete, a
+callback earlier in the sentence)? That's true for grammar-pattern and fixed-
+collocation cards (subject-verb agreement, prepositions, "on someone's
+___") — the sentence *is* the evidence.
+
+It is **not** true for a sentence lifted verbatim from a book/transcript to
+teach an arbitrary content word (a literary adjective, a one-off noun, slang)
+— any number of words could grammatically fill that blank, so the card is
+unsolvable without peeking at `extra`, which trains "flip immediately" instead
+of retrieval. For these:
+- Add a few words of paraphrase/definition **inside `text` itself** (still
+  front-visible, outside the `{{c1::…}}` span) — e.g. `The bricks were old
+  and {{c1::crumbly}} — they broke apart at the slightest touch.` — so the
+  sentence now semantically implies the answer; or
+- Use Anki's built-in cloze **hint**: `{{c1::crumbly::brittle, breaks apart
+  easily}}` renders as a `[brittle, breaks apart easily]` placeholder on the
+  front instead of `[...]`. Put a short (few-word) paraphrase there, in
+  `text`, not in `extra` — `extra` is back-only and doesn't help the attempt.
+- Never write a hint that contains the answer itself (or an unhyphenated
+  inflection of it) — that just changes what gets copied from where.
+- If neither is natural (the word is truly arbitrary trivia, e.g. a proper
+  noun or a random fact), reconsider the family — a **recall** card
+  (definition front → term back) tests the same knowledge honestly instead of
+  faking a cloze.
+
 `reference/example-cards.json` (next to this skill) is a full worked example —
 22 cards across recall/recognition/context/concept/vocabulary-map families.
 
@@ -266,6 +294,9 @@ AnkiConnect `findNotes`/`cardsInfo`.
 - Don't skip `tags` — they make deck management possible.
 - Don't assume AnkiConnect is up — `ping` first and tell the user to open Anki
   (with the add-on) if it isn't.
+- Don't blank an arbitrary content word out of a verbatim source sentence and
+  call it done — if the remaining sentence can't imply the answer, add a
+  paraphrase/cloze hint in `text` (see above) or switch to a recall card.
 
 ## Note types (created by `setup`)
 - **`AnkiCardCreator Basic`** — fields `Front, Back, Example, Note, Source, Type`.
