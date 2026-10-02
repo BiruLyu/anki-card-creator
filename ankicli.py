@@ -72,6 +72,12 @@ note for a clickable link, a good fallback when the TTS voice is off:
 Default accent is US. The link is offline/free and is added even under
 `--no-media`.
 
+Read-aloud — on push every text field also gets its own spoken clip (Basic
+Front -> FrontAudio field; Cloze Text with the blank filled -> Extra). English
+only: HTML, emoji and CJK are stripped. Skipped on pronunciation/spelling
+cards. Opt out with "read_aloud": false or `push --no-read-aloud`; retrofit
+existing notes with `read-aloud`.
+
 A note with "family": "pronunciation" defaults BOTH "tts" and "youglish" to
 true (override by setting either explicitly) — for pronunciation-breakdown
 cards whose Back holds IPA + syllable + tips (styled via the .ipa / .pron CSS).
@@ -284,7 +290,8 @@ a.yg:hover { background: rgba(37,99,235,.20); }
 
 BASIC_FRONT = (
     "{{#Type}}<div class=\"tag\">{{Type}}</div>{{/Type}}\n"
-    "<div class=\"q\">{{Front}}</div>"
+    "<div class=\"q\">{{Front}}</div>\n"
+    "{{#FrontAudio}}<div class=\"fa\">{{FrontAudio}}</div>{{/FrontAudio}}"
 )
 BASIC_BACK = (
     "{{FrontSide}}\n<hr id=answer>\n"
@@ -362,6 +369,12 @@ def cmd_ping(_args):
 
 def _ensure_model(name, fields, front, back, is_cloze):
     if name in invoke("modelNames"):
+        # Add any fields introduced since the model was created (e.g. FrontAudio).
+        have = invoke("modelFieldNames", modelName=name)
+        for i, f in enumerate(fields):
+            if f not in have:
+                invoke("modelFieldAdd", modelName=name, fieldName=f, index=i)
+                print(f"  added field {f} to {name}")
         # Keep styling/templates current on re-run.
         invoke("updateModelStyling", model={"name": name, "css": CARD_CSS})
         tmpl = {"Card 1": {"Front": front, "Back": back}}
@@ -387,7 +400,7 @@ def cmd_setup(args):
     invoke("createDeck", deck=f"{deck}::{PRON_SPELL_SUBDECK}")
     print(f"  deck ready: {deck}  (+ ::{MAIN_SUBDECK}, ::{PRON_SPELL_SUBDECK})")
     _ensure_model(BASIC_MODEL,
-                  ["Front", "Back", "Example", "Note", "Source", "Type"],
+                  ["Front", "Back", "Example", "Note", "Source", "Type", "FrontAudio"],
                   BASIC_FRONT, BASIC_BACK, is_cloze=False)
     _ensure_model(CLOZE_MODEL,
                   ["Text", "Extra", "Example", "Note", "Source"],
@@ -454,7 +467,7 @@ def _slug(text):
     return s[:30] or "audio"
 
 
-def _synth_and_store(text, voice):
+def _synth_and_store(text, voice, prefix="acc"):
     """Speak `text` with macOS `say`, encode to m4a, store in Anki media.
 
     Returns the stored filename, or None if TTS tooling is unavailable.
@@ -465,7 +478,7 @@ def _synth_and_store(text, voice):
         print("  (skipping audio — macOS `say`/`afconvert` not found)")
         return None
     digest = hashlib.md5(f"{voice or 'default'}:{text}".encode()).hexdigest()[:10]
-    filename = f"acc-{_slug(text)}-{digest}.m4a"
+    filename = f"{prefix}-{_slug(text)}-{digest}.m4a"
     say_cmd = ["say"] + (["-v", voice] if voice else []) + ["-o", None, text]
     with tempfile.TemporaryDirectory() as d:
         aiff, m4a = os.path.join(d, "a.aiff"), os.path.join(d, "a.m4a")
@@ -533,7 +546,86 @@ def _youglish_link(term=None, accent="us", url=None):
     return f'<a class="yg" href="{url}">🔎 Youglish</a>'
 
 
-def _apply_media(card, note, voice, enable):
+# ---------------------------------------------------------------------------
+# Read-aloud: every text field gets its own spoken audio, embedded in that
+# field (so it plays alongside it). The Basic Front's audio goes into a
+# separate FrontAudio field, because Front is Anki's duplicate key — putting a
+# [sound:] tag in it would break dedup on re-push. A Cloze Text's audio (with
+# the blank filled in) goes into Extra, on the back, so it can't give the
+# answer away. Pronunciation and spelling cards are skipped: audio on their
+# front would reveal what the card is testing.
+# ---------------------------------------------------------------------------
+READ_ALOUD_FIELDS = {                    # model -> [(source field, target field)]
+    BASIC_MODEL: [("Front", "FrontAudio"), ("Back", "Back"),
+                  ("Example", "Example"), ("Note", "Note")],
+    CLOZE_MODEL: [("Text", "Extra"), ("Extra", "Extra"),
+                  ("Example", "Example"), ("Note", "Note")],
+}
+READ_ALOUD_SKIP_TYPES = {"Pronunciation", "Spelling"}
+
+# The TTS voice is English, so drop Chinese/CJK text and emoji/symbols (which
+# `say` would read out by name) before speaking.
+_CJK_RE = re.compile(r"[　-〿㐀-鿿豈-﫿＀-￯]+")
+_SYMBOL_RE = re.compile(r"[←-⇿⌀-⏿①-➿⬀-⯿"
+                        r"\U0001F000-\U0001FAFF️‍]")
+
+
+def _speakable(s):
+    """Plain English text to speak for a field's HTML, or None if nothing left."""
+    s = re.sub(r"\[sound:[^\]]*\]", " ", s or "")
+    s = re.sub(r'<a class="yg".*?</a>', " ", s)
+    s = re.sub(_CLOZE_RE, r"\1", s)                      # fill in cloze answers
+    s = re.sub(r"(?i)<br\s*/?>|</(li|div|p)>", ". ", s)
+    s = html.unescape(re.sub(r"<[^>]+>", " ", s))
+    s = s.replace("❌", ". Wrong: ").replace("✅", " correct ").replace("≈", " about ")
+    s = re.sub(r"(\d)\s*[–—-]\s*(\d)", r"\1 to \2", s)       # 10,000–99,999
+    s = _SYMBOL_RE.sub(" ", _CJK_RE.sub(" ", s))
+    s = re.sub(r"\(\s*[-—,.;:=/]*\s*\)", " ", s)         # parens emptied by stripping
+    s = s.replace("·", ". ").replace("•", ". ").replace(" / ", " or ").replace(" = ", ": ")
+    s = re.sub(r"\s+([,.;:!?])", r"\1", s)
+    s = re.sub(r"([.,;:!?])(\s*[.,;:])+", r"\1", s)
+    s = re.sub(r"\s+", " ", s).strip(" .,;:—-=")
+    return s if re.search(r"[A-Za-z]", s) else None
+
+
+def _norm_spoken(text):  # "a circuit" ~ "circuit" when comparing to term audio
+    return re.sub(r"^(a|an|the|to)-", "", _slug(text))
+
+
+def _read_aloud_plan(model, fields):
+    """[(source, target, text)] still to be read aloud for a note (idempotent)."""
+    if fields.get("Type", "") in READ_ALOUD_SKIP_TYPES:
+        return []
+    plan = []
+    for src, dst in READ_ALOUD_FIELDS.get(model, []):
+        cur = fields.get(dst, "") or ""
+        if f"[sound:acc-ra-{src.lower()}-" in cur:
+            continue                                     # already done
+        if src == "Front" and "[sound:" in (fields.get("Front") or ""):
+            continue                                     # listening card: has front audio
+        text = _speakable(fields.get(src, ""))
+        if not text:
+            continue
+        # Skip when the field's existing term audio already says the same thing.
+        spoken = re.findall(r"\[sound:acc-(?!ra-)(.+?)-[0-9a-f]{10}\.m4a\]", cur)
+        if any(_norm_spoken(sp) == _norm_spoken(text) for sp in spoken):
+            continue
+        plan.append((src, dst, text))
+    return plan
+
+
+def _apply_read_aloud(fields, plan, voice):
+    """Synthesize the plan; return {field: new value} for the changed fields."""
+    out = {}
+    for src, dst, text in plan:
+        fn = _synth_and_store(text, voice, prefix=f"acc-ra-{src.lower()}")
+        if fn:
+            cur = out.get(dst, fields.get(dst, "") or "")
+            out[dst] = (cur + " " if cur else "") + f"[sound:{fn}]"
+    return out
+
+
+def _apply_media(card, note, voice, enable, read_aloud=True):
     model = note["modelName"]
     is_cloze = model == CLOZE_MODEL
     default_field = ("Clue" if model == SPELLING_MODEL
@@ -590,6 +682,11 @@ def _apply_media(card, note, voice, enable):
         _embed(note, spec.get("field", default_field),
                f"[sound:{fn}]", spec.get("prepend", False))
 
+    # Read every field aloud (after term audio, so duplicates are detected).
+    if enable and read_aloud and card.get("read_aloud", True):
+        note["fields"].update(_apply_read_aloud(
+            note["fields"], _read_aloud_plan(model, note["fields"]), voice))
+
 
 def cmd_push(args):
     _pre_sync(args)
@@ -612,7 +709,8 @@ def cmd_push(args):
         (addable if chk["canAdd"] else skipped).append((card, note, chk))
 
     for card, note, _ in addable:
-        _apply_media(card, note, voice, enable_media)
+        _apply_media(card, note, voice, enable_media,
+                     read_aloud=not args.no_read_aloud)
 
     added_ids = invoke("addNotes", notes=[n for _, n, _ in addable]) if addable else []
     added = sum(1 for i in added_ids if i)
@@ -687,6 +785,38 @@ def cmd_enrich(args):
     _post_sync(args)
 
 
+def cmd_read_aloud(args):
+    """Retrofit per-field read-aloud audio onto *existing* notes in a deck.
+    Idempotent; applies by default, --dry-run to preview."""
+    _pre_sync(args)
+    deck = args.deck or DEFAULT_DECK
+    voice = args.voice or DEFAULT_VOICE
+    query = f'deck:"{deck}"' + (f" ({args.query})" if args.query else "")
+    info = invoke("notesInfo", notes=invoke("findNotes", query=query))
+    plan = []
+    for n in info:
+        fields = {k: v["value"] for k, v in n["fields"].items()}
+        p = _read_aloud_plan(n["modelName"], fields)
+        if p:
+            plan.append((n["noteId"], fields, p))
+    clips = sum(len(p) for _, _, p in plan)
+    print(f'{query}: {len(info)} notes · {len(plan)} to update · {clips} clips')
+    for _, _, p in plan[:20] if args.dry_run else []:
+        for src, dst, text in p:
+            print(f"  [{src:7}→{dst:10}] {text[:90]}")
+    if not plan or args.dry_run:
+        print("Nothing to do." if not plan else "\n(dry run — omit --dry-run to write)")
+        return
+    for i, (nid, fields, p) in enumerate(plan, 1):
+        changed = _apply_read_aloud(fields, p, voice)
+        if changed:
+            invoke("updateNoteFields", note={"id": nid, "fields": changed})
+        if i % 25 == 0:
+            print(f"  {i}/{len(plan)} notes done", flush=True)
+    print(f"Updated {len(plan)} notes ({clips} clips).")
+    _post_sync(args)
+
+
 def cmd_sync(_args):
     invoke("sync")
     print("Synced to AnkiWeb.")
@@ -713,7 +843,19 @@ def main(argv=None):
                     help="skip the pre-sync pull from AnkiWeb")
     sp.add_argument("--voice", help="macOS TTS voice name (default: the system voice)")
     sp.add_argument("--no-media", action="store_true", help="skip TTS/audio generation")
+    sp.add_argument("--no-read-aloud", action="store_true",
+                    help="don't add per-field read-aloud audio (on by default)")
     sp.set_defaults(func=cmd_push)
+    rp = sub.add_parser("read-aloud", help="add per-field audio to existing notes")
+    rp.add_argument("--query", help="extra Anki search to narrow the notes, e.g. 'added:1'")
+    rp.add_argument("--dry-run", dest="dry_run", action="store_true",
+                    help="preview only; don't write (applies by default)")
+    rp.add_argument("--no-sync", action="store_true",
+                    help="skip the post-sync push to AnkiWeb (on by default)")
+    rp.add_argument("--no-pre-sync", action="store_true",
+                    help="skip the pre-sync pull from AnkiWeb")
+    rp.add_argument("--voice", help="macOS TTS voice name (default: the system voice)")
+    rp.set_defaults(func=cmd_read_aloud)
     ep = sub.add_parser("enrich", help="add audio/Youglish to existing vocab cards")
     ep.add_argument("--audio", action="store_true", help="add TTS audio")
     ep.add_argument("--youglish", action="store_true", help="add Youglish links")

@@ -28,6 +28,8 @@ Pronunciation and spelling cards **auto-route** to a `…::Pronunciation & Spell
 subdeck so you can drill them separately from vocabulary.
 - **`enrich`** — retrofit audio + Youglish onto vocab cards already in a deck (idempotent;
   applies by default, `--dry-run` to preview).
+- **Read-aloud** — every field (question, answer, example, note) gets its own TTS clip on
+  push; `read-aloud` retrofits existing notes (idempotent; `--dry-run` to preview).
 - **Auto-sync both ends** — `setup` / `push` / `enrich` pull the latest from AnkiWeb before
   writing *and* push changes back up afterwards, so you never study a stale collection or
   create conflicts.
@@ -62,6 +64,7 @@ python3 tts.py "piece of cake"          # makes an .m4a, drops it in Anki's medi
 | `setup` | Create the deck + two styled note types (idempotent; re-run to restyle) |
 | `push <file> [--no-sync]` | Add notes from a cards JSON file |
 | `enrich [--audio] [--youglish] [--dry-run] [--no-sync]` | Retrofit pronunciation onto existing vocab cards (applies by default; `--dry-run` to preview) |
+| `read-aloud [--query Q] [--dry-run] [--no-sync]` | Add per-field read-aloud audio to existing notes |
 | `sync` | Sync to AnkiWeb |
 
 `setup` / `push` / `enrich` **sync on both ends** — a pre-sync pull before writing and a

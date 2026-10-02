@@ -230,6 +230,18 @@ unless overridden with `push --voice <name>` (`say -v '?'` lists names).
 `push --no-media` skips audio. (Note: Siri voices are gated from the `say` CLI —
 set the desired voice as the system voice in Spoken Content instead.)
 
+**Read-aloud (automatic).** On push, every text field also gets its own spoken
+audio: the question (Basic `Front` → a separate `FrontAudio` field, so the
+first field Anki uses for duplicate detection stays untouched), `Back`,
+`Example` and `Note`; on Cloze cards the full sentence with the blank filled
+in plus `Extra` (all on the back), then `Example` and `Note`. HTML, emoji and
+Chinese text are stripped before speaking (the voice is English); ❌/✅ are
+read as "Wrong:"/"correct". A field is skipped when its existing term audio
+already says the same thing. **Pronunciation and spelling cards are
+skipped** — front audio would give away what they test. Opt out per note with
+`"read_aloud": false`, or per push with `--no-read-aloud`. Existing notes:
+`read-aloud` retrofits them (see below).
+
 **Youglish link.** Add `"youglish": true` to a note for a clickable link to
 real-speaker pronunciations on YouTube — a good fallback when the TTS voice is
 wrong. `true` auto-derives the term; a string uses an explicit query; a dict
@@ -256,6 +268,8 @@ python3 "$CLI" push cards/<name>.json      # add notes (auto pre- + post-sync to
 python3 "$CLI" push cards/<name>.json --no-sync   # add without the post-sync push
 python3 "$CLI" enrich                      # retrofit audio+Youglish onto existing vocab cards (applies + syncs)
 python3 "$CLI" enrich --dry-run            # preview only, don't write
+python3 "$CLI" read-aloud                  # retrofit per-field read-aloud audio onto existing notes
+python3 "$CLI" read-aloud --query "added:7" --dry-run   # narrow with an Anki search; preview
 python3 "$CLI" sync                       # sync only
 ```
 
@@ -276,6 +290,19 @@ term from its `.hl` highlight or cloze, and appends TTS audio and/or a Youglish
 link, skipping any note that already has them (idempotent). It **applies by
 default** (and post-syncs); pass `--dry-run` to preview without writing, and
 `--audio` / `--youglish` to limit it to one (default: both).
+
+**`read-aloud`** adds the per-field read-aloud audio (above) to notes already
+in a deck. Idempotent (each field's clip is tagged `acc-ra-<field>-…`, so
+re-runs skip it); applies by default, `--dry-run` previews, `--query` narrows
+with any Anki search. About 3 clips per note at ~1s each, so a whole deck takes
+a while — run it in the background.
+
+> **Schema changes need a one-time full sync.** Adding a field to a note type
+> (as `setup` did for `FrontAudio`) makes AnkiWeb demand a one-way full sync, which
+> AnkiConnect can't perform: `sync` fails with *"Sync status 2"*. Tell the user to
+> click **Sync** in Anki desktop and choose **Upload to AnkiWeb** (right after a
+> normal sync, so nothing on the phone is lost). Do the rest of the batch with
+> `--no-pre-sync --no-sync` first so they only upload once.
 
 ### 5. Verify / report
 Report how many notes were added vs skipped. **Duplicate handling:** the CLI
