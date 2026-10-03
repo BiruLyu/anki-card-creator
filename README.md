@@ -30,6 +30,8 @@ subdeck so you can drill them separately from vocabulary.
   applies by default, `--dry-run` to preview).
 - **Read-aloud** — every field (question, answer, example, note) gets its own TTS clip on
   push; `read-aloud` retrofits existing notes (idempotent; `--dry-run` to preview).
+- **Labelled audio + players** — each audio button is a labelled pill (term, sentence,
+  example…), and the card adds an HTML5 player per clip with −5s/+5s, restart and 0.75×.
 - **Auto-sync both ends** — `setup` / `push` / `enrich` pull the latest from AnkiWeb before
   writing *and* push changes back up afterwards, so you never study a stale collection or
   create conflicts.
@@ -65,6 +67,7 @@ python3 tts.py "piece of cake"          # makes an .m4a, drops it in Anki's medi
 | `push <file> [--no-sync]` | Add notes from a cards JSON file |
 | `enrich [--audio] [--youglish] [--dry-run] [--no-sync]` | Retrofit pronunciation onto existing vocab cards (applies by default; `--dry-run` to preview) |
 | `read-aloud [--query Q] [--dry-run] [--no-sync]` | Add per-field read-aloud audio to existing notes |
+| `label-audio [--query Q] [--dry-run] [--no-sync]` | Label existing audio buttons and give them HTML5 players (−5s/+5s, 0.75×) |
 | `sync` | Sync to AnkiWeb |
 
 `setup` / `push` / `enrich` **sync on both ends** — a pre-sync pull before writing and a

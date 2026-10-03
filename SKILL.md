@@ -242,6 +242,18 @@ skipped** — front audio would give away what they test. Opt out per note with
 `"read_aloud": false`, or per push with `--no-read-aloud`. Existing notes:
 `read-aloud` retrofits them (see below).
 
+**Audio buttons + players (automatic).** Every `[sound:]` is wrapped in a
+labelled pill — `<span class="sl" data-l="sentence" data-src="file">` — showing
+Anki's (restyled, small) play button plus a label taken from the filename
+(term / question / answer / sentence / explanation / example / note); tapping
+anywhere on the pill plays it. The note-type templates carry a script
+(`AUDIO_JS`) that builds an HTML5 player for each pill at the end of the card,
+with scrubbing, −5s/+5s, restart and 🐢 0.75× speed. Anki's own autoplay is
+unchanged. The label is CSS-only, so it's never read aloud. `push` wraps new
+sounds; `label-audio` wraps sounds in existing notes (idempotent). Restyle by
+editing `CARD_CSS`/`AUDIO_JS` and re-running `setup` (no field changes, so no
+full sync).
+
 **Youglish link.** Add `"youglish": true` to a note for a clickable link to
 real-speaker pronunciations on YouTube — a good fallback when the TTS voice is
 wrong. `true` auto-derives the term; a string uses an explicit query; a dict
@@ -270,6 +282,7 @@ python3 "$CLI" enrich                      # retrofit audio+Youglish onto existi
 python3 "$CLI" enrich --dry-run            # preview only, don't write
 python3 "$CLI" read-aloud                  # retrofit per-field read-aloud audio onto existing notes
 python3 "$CLI" read-aloud --query "added:7" --dry-run   # narrow with an Anki search; preview
+python3 "$CLI" label-audio                 # wrap existing [sound:] tags in labelled pills (+ players)
 python3 "$CLI" sync                       # sync only
 ```
 

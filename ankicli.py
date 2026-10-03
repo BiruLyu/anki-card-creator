@@ -286,6 +286,44 @@ a.yg:hover { background: rgba(37,99,235,.20); }
 }
 .spell::before { content: "✍️ "; }
 .nightMode .spell, .night_mode .spell { background: #1c1f26; border-color: #2c3038; }
+/* audio: Anki's native play buttons, restyled small, wrapped in a labelled
+   pill (<span class="sl" data-l="label" data-src="file">[sound:file]</span>).
+   The label is CSS-only (::after), so it is never read aloud or searched. A
+   transparent overlay on the button stretches over the whole pill, so tapping
+   the label plays too. */
+.replay-button { display: inline-flex; vertical-align: middle; margin: 0 2px; }
+.replay-button svg { width: 30px; height: 30px; }
+.replay-button svg circle { fill: #eef2ff; stroke: #a5b4fc; stroke-width: 3; }
+.replay-button svg path { fill: #4f46e5; transform: scale(.8); transform-origin: center; }
+.nightMode .replay-button svg circle, .night_mode .replay-button svg circle { fill: #1e1b4b; stroke: #6366f1; }
+.nightMode .replay-button svg path, .night_mode .replay-button svg path { fill: #c7d2fe; }
+.sl {
+  position: relative; display: inline-flex; align-items: center; gap: 2px;
+  padding: 1px 10px 1px 2px; margin: 2px; vertical-align: middle;
+  border: 1px solid #c7d2fe; border-radius: 999px; background: #eef2ff;
+}
+.sl::after { content: attr(data-l); font-size: 14px; font-weight: 600; color: #4338ca; }
+.sl .replay-button { position: static; }
+.sl .replay-button::after { content: ""; position: absolute; inset: 0; }
+.sl .replay-button svg circle { stroke: none; }
+.nightMode .sl, .night_mode .sl { background: #1e1b4b; border-color: #4338ca; }
+.nightMode .sl::after, .night_mode .sl::after { color: #c7d2fe; }
+
+/* HTML5 players (built by AUDIO_JS from the .sl pills): scrub, -5s/+5s,
+   restart, 0.75x. */
+.aps { margin-top: 14px; }
+.ap {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0;
+  padding: 8px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px;
+}
+.ap .l { font-weight: 600; width: 100%; }
+.ap audio { width: 100%; height: 36px; }
+.ap button {
+  font-size: 15px; padding: 6px 12px; border-radius: 8px;
+  border: 1px solid #94a3b8; background: #f1f5f9; color: #1f2933;
+}
+.nightMode .ap, .night_mode .ap { border-color: #333842; }
+.nightMode .ap button, .night_mode .ap button { background: #23262e; color: #e4e7eb; border-color: #4b5563; }
 """
 
 BASIC_FRONT = (
@@ -323,6 +361,53 @@ SPELLING_BACK = (
     "{{#Tips}}<div class=\"spell\">{{Tips}}</div>{{/Tips}}\n"
     "{{#Source}}<div class=\"source\">{{Source}}</div>{{/Source}}"
 )
+
+# Builds one HTML5 player per labelled audio pill (.sl[data-src]) at the end of
+# the card. Runs on every side; clears earlier players first, so the copy of
+# the front inside {{FrontSide}} doesn't double them.
+AUDIO_JS = """
+<script>
+(function () {
+  document.querySelectorAll('.aps').forEach(function (e) { e.remove(); });
+  var pills = document.querySelectorAll('.sl[data-src]');
+  if (!pills.length) return;
+  var box = document.createElement('div'), seen = {};
+  box.className = 'aps';
+  pills.forEach(function (el) {
+    var src = el.getAttribute('data-src');
+    if (seen[src]) return;
+    seen[src] = 1;
+    var d = document.createElement('div');
+    d.className = 'ap';
+    d.innerHTML = '<span class="l">🔊 ' + el.getAttribute('data-l') + '</span>' +
+      '<audio controls preload="metadata"></audio>' +
+      '<button data-a="back">−5s</button><button data-a="fwd">+5s</button>' +
+      '<button data-a="restart">⟲ restart</button><button data-a="speed">🐢 0.75×</button>';
+    var a = d.querySelector('audio');
+    a.src = src;
+    d.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var k = b.getAttribute('data-a');
+      if (k === 'back') a.currentTime = Math.max(0, a.currentTime - 5);
+      else if (k === 'fwd') a.currentTime = Math.min(a.duration || 0, a.currentTime + 5);
+      else if (k === 'restart') { a.currentTime = 0; a.play(); }
+      else {
+        a.playbackRate = a.playbackRate === 1 ? 0.75 : 1;
+        b.textContent = a.playbackRate === 1 ? '🐢 0.75×' : '1×';
+      }
+    });
+    box.appendChild(d);
+  });
+  (document.getElementById('qa') || document.body).appendChild(box);
+})();
+</script>"""
+BASIC_FRONT += AUDIO_JS
+BASIC_BACK += AUDIO_JS
+CLOZE_FRONT += AUDIO_JS
+CLOZE_BACK += AUDIO_JS
+SPELLING_FRONT += AUDIO_JS
+SPELLING_BACK += AUDIO_JS
 
 
 def invoke(action: str, **params):
@@ -625,6 +710,33 @@ def _apply_read_aloud(fields, plan, voice):
     return out
 
 
+# Wrap each bare [sound:file] in a labelled pill (see .sl CSS / AUDIO_JS). The
+# label comes from the filename: acc-ra-<field>-… is that field's read-aloud
+# clip; any other acc-… clip is the term itself.
+AUDIO_LABELS = {"front": "question", "back": "answer", "text": "sentence",
+                "extra": "explanation", "example": "example", "note": "note",
+                "clue": "word"}
+_BARE_SOUND_RE = re.compile(r'(<span class="sl"[^>]*>)?\[sound:([^\]]+)\]')
+
+
+def _audio_label(fn):
+    m = re.match(r"acc-ra-([a-z]+)-", fn)
+    if m:
+        return AUDIO_LABELS.get(m.group(1), m.group(1))
+    return "term" if fn.startswith("acc-") else "audio"
+
+
+def _label_sounds(value):
+    """Field HTML with every bare [sound:] wrapped in a pill (idempotent)."""
+    def wrap(m):
+        if m.group(1):
+            return m.group(0)
+        fn = m.group(2)
+        return (f'<span class="sl" data-l="{_audio_label(fn)}" '
+                f'data-src="{html.escape(fn, quote=True)}">[sound:{fn}]</span>')
+    return _BARE_SOUND_RE.sub(wrap, value or "")
+
+
 def _apply_media(card, note, voice, enable, read_aloud=True):
     model = note["modelName"]
     is_cloze = model == CLOZE_MODEL
@@ -686,6 +798,10 @@ def _apply_media(card, note, voice, enable, read_aloud=True):
     if enable and read_aloud and card.get("read_aloud", True):
         note["fields"].update(_apply_read_aloud(
             note["fields"], _read_aloud_plan(model, note["fields"]), voice))
+
+    for k, v in note["fields"].items():
+        if "[sound:" in v:
+            note["fields"][k] = _label_sounds(v)
 
 
 def cmd_push(args):
@@ -817,6 +933,32 @@ def cmd_read_aloud(args):
     _post_sync(args)
 
 
+def cmd_label_audio(args):
+    """Wrap every bare [sound:] in existing notes in a labelled pill, so the
+    template shows a label and builds an HTML5 player for it. Idempotent."""
+    _pre_sync(args)
+    deck = args.deck or DEFAULT_DECK
+    query = f'deck:"{deck}"' + (f" ({args.query})" if args.query else "")
+    info = invoke("notesInfo", notes=invoke("findNotes", query=query))
+    plan = []
+    for n in info:
+        changed = {}
+        for k, v in n["fields"].items():
+            new = _label_sounds(v["value"])
+            if new != v["value"]:
+                changed[k] = new
+        if changed:
+            plan.append((n["noteId"], changed))
+    print(f"{query}: {len(info)} notes · {len(plan)} to label")
+    if not plan or args.dry_run:
+        print("Nothing to do." if not plan else "(dry run — omit --dry-run to write)")
+        return
+    for nid, changed in plan:
+        invoke("updateNoteFields", note={"id": nid, "fields": changed})
+    print(f"Labelled {len(plan)} notes.")
+    _post_sync(args)
+
+
 def cmd_sync(_args):
     invoke("sync")
     print("Synced to AnkiWeb.")
@@ -856,6 +998,15 @@ def main(argv=None):
                     help="skip the pre-sync pull from AnkiWeb")
     rp.add_argument("--voice", help="macOS TTS voice name (default: the system voice)")
     rp.set_defaults(func=cmd_read_aloud)
+    lp = sub.add_parser("label-audio", help="label existing audio buttons + add players")
+    lp.add_argument("--query", help="extra Anki search to narrow the notes")
+    lp.add_argument("--dry-run", dest="dry_run", action="store_true",
+                    help="preview only; don't write (applies by default)")
+    lp.add_argument("--no-sync", action="store_true",
+                    help="skip the post-sync push to AnkiWeb (on by default)")
+    lp.add_argument("--no-pre-sync", action="store_true",
+                    help="skip the pre-sync pull from AnkiWeb")
+    lp.set_defaults(func=cmd_label_audio)
     ep = sub.add_parser("enrich", help="add audio/Youglish to existing vocab cards")
     ep.add_argument("--audio", action="store_true", help="add TTS audio")
     ep.add_argument("--youglish", action="store_true", help="add Youglish links")
