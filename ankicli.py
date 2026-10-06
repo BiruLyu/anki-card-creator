@@ -924,7 +924,8 @@ def cmd_read_aloud(args):
         print("Nothing to do." if not plan else "\n(dry run — omit --dry-run to write)")
         return
     for i, (nid, fields, p) in enumerate(plan, 1):
-        changed = _apply_read_aloud(fields, p, voice)
+        changed = {k: _label_sounds(v)
+                   for k, v in _apply_read_aloud(fields, p, voice).items()}
         if changed:
             invoke("updateNoteFields", note={"id": nid, "fields": changed})
         if i % 25 == 0:
