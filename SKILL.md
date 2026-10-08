@@ -21,8 +21,8 @@ transcript / doc into flashcards, or study a topic with spaced repetition.
 1. **Retrieval beats recognition.** Recall cards (concept → produce the term)
    force active retrieval; recognition cards (term → meaning) only train passive
    comprehension. Always generate a mix — never recognition-only.
-2. **Direction by level.** Beginner/intermediate: include recognition alongside
-   recall. Advanced: weight toward recall + open-ended production.
+2. **Direction by level.** Beginners may need recognition alongside recall;
+   everyone else gets recall + context only (see the default set below).
 3. **Context beats isolation.** Card words inside a collocation/sentence, not
    bare. Fill-in-the-blank (cloze) beats plain translation for real use.
 4. **Multiple memory routes.** Add a vivid example, a mnemonic/etymology, or a
@@ -47,9 +47,22 @@ transcript / doc into flashcards, or study a topic with spaced repetition.
 | **Pronunciation** | the word/phrase (highlighted) | IPA + syllable breakdown + tips + hook | Basic |
 | **Spelling** | 🔊 audio + meaning clue → *type the word* | correct spelling (letter-diff) + tips | **Spelling** (type-answer) |
 
-**Minimum set per target item:** 1 Recall + 1 Context. Add 1 Recognition for
-beginner/intermediate. Add Concept for grammar/confusables, Vocabulary-map for a
-cluster of 4+, Pronunciation for a word whose *sound* is the point.
+**Default set per target item: 2 cards — 1 Recall + 1 Context.** Every extra
+card costs review time for as long as the deck lives, so add others only when
+they test something the two defaults don't:
+- **Concept** — only for a genuine confusable pair or a grammar rule
+  (`rat on` vs `rat out`, `seem right` vs `seem to be right`). Don't add one
+  just to restate the definition.
+- **Vocabulary-map** — only for a real cluster of 4+ related items.
+- **Pronunciation** (+ **Spelling**) — only when the sound or the spelling is
+  genuinely tricky (see the pairing rule below).
+- **Recognition** — skip by default; the Recall card already covers the
+  meaning. Add it only for a beginner, or when the user asks for it.
+- One Context card per item, not one per sense — unless the senses are truly
+  different words (e.g. `slug` the animal vs the URL part).
+
+A grammar/usage question with no single target term (e.g. "why *wouldn't I*
+and not *would I not*?") gets 1 Concept + 1–2 Context cards instead.
 
 ### Pronunciation-breakdown cards (`family: "pronunciation"`)
 
@@ -130,6 +143,14 @@ for regular, phonetic words.
 > Connected-speech / linking-rule cards are a pronunciation *concept* (not the
 > pronunciation family), so to file them with the pronunciation set add a file-level
 > `"deck": "AnkiCardCreator::Pronunciation & Spelling"` (or push `--deck …`).
+>
+> **Use the user's deck name.** If the project's CLAUDE.md names a base deck
+> (e.g. the decks were nested under a shared parent like `English::AnkiCardCreator`),
+> put that in the file-level `"deck"` and pass it as `--deck` to `read-aloud` /
+> `label-audio` / `enrich` — never fall back to the default `AnkiCardCreator`,
+> which would silently recreate a stray top-level deck. Nesting several decks
+> under one parent whose preset has a new-cards/day limit and **Random notes**
+> gather order caps new cards across all of them at once.
 
 ---
 
